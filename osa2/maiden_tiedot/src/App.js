@@ -19,6 +19,7 @@ const App = () => {
   return (
     <div>
       <Filtteri filtteriValue={ filtteriValue } setFiltteriValue={ setFiltteriValue } />
+      {/* setFiltteriValue menee NaytaMaat -> Maa, jotta saa buttonista filtteröityä maan */}
       <NaytaMaat maat={ maat } filtteriValue={ filtteriValue } setFiltteriValue={ setFiltteriValue } />
     </div>
   );
