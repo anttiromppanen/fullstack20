@@ -2,7 +2,7 @@ import React from 'react';
 
 import Person from './Person'
 
-const ShowPersons = ({ persons, filterValue }) => {
+const ShowPersons = ({ persons, filterValue, handleDelete }) => {
   const mapPersons = persons
     .filter(person => 
       person.name.toLowerCase().includes(filterValue.toLowerCase())
@@ -11,8 +11,10 @@ const ShowPersons = ({ persons, filterValue }) => {
       person => 
         <Person
           key={ person.name }
+          id={ person.id }
           name={ person.name }
           number={ person.number }
+          handleDelete={ handleDelete }
         />
     )
   
