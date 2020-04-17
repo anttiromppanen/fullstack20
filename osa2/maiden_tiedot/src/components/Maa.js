@@ -1,5 +1,7 @@
 import React from 'react';
 
+import Saa from './Saa'
+
 const Maa = ({ name, capital, population, languages, flag, setFiltteriValue }) => {
   const maaKaikkiStatsit = () => {
     return (
@@ -12,6 +14,7 @@ const Maa = ({ name, capital, population, languages, flag, setFiltteriValue }) =
           { languages.map((language, i) => <li key={ i }>{ language.name }</li>) }
         </ul>
         <img src={ flag } alt={ name } width="300" height="150" />
+        <Saa capital={ capital } />
       </div>
     )
   }
