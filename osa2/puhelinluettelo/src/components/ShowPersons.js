@@ -3,6 +3,10 @@ import React from 'react';
 import Person from './Person'
 
 const ShowPersons = ({ persons, filterValue, handleDelete }) => {
+  if (persons.length < 1) {
+    return <div></div>  
+  }
+
   const mapPersons = persons
     .filter(person => 
       person.name.toLowerCase().includes(filterValue.toLowerCase())
@@ -10,7 +14,7 @@ const ShowPersons = ({ persons, filterValue, handleDelete }) => {
     .map(
       person => 
         <Person
-          key={ person.name }
+          key={ person.id }
           id={ person.id }
           name={ person.name }
           number={ person.number }
