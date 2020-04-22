@@ -58,6 +58,10 @@ const App = () => {
             setMessage(`Successfully updated number for ${res.data.name}`)
           })
           .catch(error => {
+            if (error.response.data.error === 'number missing') {
+              return setMessage(error.response.data.error)
+            }
+
             setMessage(`Information of ${ personId.name } has already been removed from server`)
             setPersons(persons.filter(person => person.id !== personId.id))
           })
