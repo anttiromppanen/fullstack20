@@ -57,7 +57,7 @@ const App = () => {
             setPersons(persons.map(person => person.id !== res.data.id ? person : lisattava))
             setMessage(`Successfully updated number for ${res.data.name}`)
           })
-          .catch(res => {
+          .catch(error => {
             setMessage(`Information of ${ personId.name } has already been removed from server`)
             setPersons(persons.filter(person => person.id !== personId.id))
           })
@@ -74,6 +74,7 @@ const App = () => {
         setPersons(persons.concat(res.data))
         setMessage(`${res.data.name} successfully added to phonebook`)
       })
+      .catch(error => setMessage(error.response.data.error))
   }
 
   const handleDelete = (id, name) => {
