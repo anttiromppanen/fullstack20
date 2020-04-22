@@ -58,7 +58,7 @@ const App = () => {
             setMessage(`Successfully updated number for ${res.data.name}`)
           })
           .catch(error => {
-            if (error.response.data.error === 'number missing') {
+            if (error.response.data.error) {
               return setMessage(error.response.data.error)
             }
 
