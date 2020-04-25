@@ -19,5 +19,7 @@ module.exports = {
   rules: {
     semi: ['error', 'never'],
     'no-console': 0,
+    // Windowsin takia
+    'linebreak-style': 0,
   },
 };
