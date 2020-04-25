@@ -60,4 +60,9 @@ describe('total likes', () => {
 
     expect(result).toEqual(expectedResult)
   })
+
+  test.only('most blogs by single author shows up correctly', () => {
+    const result = listHelper.mostBlogs(blogs)
+    expect(result).toEqual(0)
+  })
 })
