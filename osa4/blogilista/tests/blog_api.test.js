@@ -43,6 +43,69 @@ test('GET /api/blogs returns right amount of data', async () => {
   expect(response.body).toHaveLength(initialBlogs.length)
 })
 
+test('GET object returns id instead of _id', async () => {
+  const response = await api.get('/api/blogs')
+  expect(response.body[0].id).toBeDefined()
+})
+
+test('New blog can be added to database', async () => {
+  const newBlog = {
+    title: 'New Blog',
+    author: 'New Author',
+    url: 'https://abcdefghijklmn.com',
+    likes: 25,
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+
+  const response = await api.get('/api/blogs')
+
+  const contents = response.body.map((x) => x.title)
+
+  expect(response.body).toHaveLength(initialBlogs.length + 1)
+  expect(contents).toContain('New Blog')
+})
+
+test('Make sure votes is set to 0, if votes === null', async () => {
+  const newBlog = {
+    title: 'New Blog',
+    author: 'New Author',
+    url: 'https://abcdefghijklmn.com',
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+
+  const response = await api.get('/api/blogs')
+
+  const addedBlog = response.body.find((x) => x.title === 'New Blog')
+
+  expect(addedBlog.likes).toBeDefined()
+})
+
+test('Return 400 Bad request, if "title" and "url" are null', async () => {
+  const newBlog = {
+    author: 'New Author',
+    likes: 10,
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(400)
+
+  const response = await api.get('/api/blogs')
+
+  expect(response.body).toHaveLength(initialBlogs.length)
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
