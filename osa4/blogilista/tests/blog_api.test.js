@@ -207,6 +207,52 @@ describe('when there is initially one user at db', () => {
 
     expect(usersAtEnd).toHaveLength(usersAtStart.length)
   })
+
+  test('creation fails with proper statuscode and message if USERNAME is too short or doesnt exist', async () => {
+    let usersAtStart = await User.find({})
+    usersAtStart = usersAtStart.map((u) => u.toJSON())
+
+    const newUser = {
+      username: 'ab',
+      name: 'abcdefgh',
+      password: 'abcdefg',
+    }
+
+    await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    let usersAtEnd = await User.find({})
+    usersAtEnd = usersAtEnd.map((u) => u.toJSON())
+
+    expect(usersAtEnd).toHaveLength(usersAtStart.length)
+  })
+
+  test('creation fails with proper statuscode and message if PASSWORD is too short or doesnt exist', async () => {
+    let usersAtStart = await User.find({})
+    usersAtStart = usersAtStart.map((u) => u.toJSON())
+
+    const newUser = {
+      username: 'abcdefg',
+      name: 'abcdefgh',
+      password: 'ab',
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    expect(result.body.error).toContain("password can't be")
+
+    let usersAtEnd = await User.find({})
+    usersAtEnd = usersAtEnd.map((u) => u.toJSON())
+
+    expect(usersAtEnd).toHaveLength(usersAtStart.length)
+  })
 })
 
 afterAll(() => {
