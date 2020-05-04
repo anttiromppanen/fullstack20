@@ -1,6 +1,8 @@
+/* eslint-disable no-underscore-dangle */
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 const app = require('../app')
 
 const api = supertest(app)
@@ -31,9 +33,20 @@ const initialBlogs = [
 
 beforeEach(async () => {
   await Blog.deleteMany({})
+  await User.deleteMany({})
+
+  const user = {
+    username: 'teppo',
+    name: 'teppo',
+    password: 'teppo',
+  }
+
+  const userObject = new User(user)
+  await userObject.save(userObject)
 
   initialBlogs.forEach(async (blog) => {
     const blogObject = new Blog(blog)
+    blogObject.user = userObject.id
     await blogObject.save(blogObject)
   })
 })
@@ -56,15 +69,26 @@ describe('GET', () => {
 
 describe('POST', () => {
   test('New blog can be added to database', async () => {
+    const user = await User.findOne({})
+
+    const userForToken = {
+      username: user.username,
+      id: user._id,
+    }
+
+    const token = jwt.sign(userForToken, process.env.SECRET)
+
     const newBlog = {
       title: 'New Blog',
       author: 'New Author',
       url: 'https://abcdefghijklmn.com',
       likes: 25,
+      user: user._id,
     }
 
     await api
       .post('/api/blogs')
+      .set('Authorization', `bearer ${token}`)
       .send(newBlog)
       .expect(200)
       .expect('Content-Type', /application\/json/)
@@ -78,14 +102,25 @@ describe('POST', () => {
   })
 
   test('Make sure votes is set to 0, if votes === null', async () => {
+    const user = await User.findOne({})
+
+    const userForToken = {
+      username: user.username,
+      id: user._id,
+    }
+
+    const token = jwt.sign(userForToken, process.env.SECRET)
+
     const newBlog = {
       title: 'New Blog',
       author: 'New Author',
       url: 'https://abcdefghijklmn.com',
+      user: user._id,
     }
 
     await api
       .post('/api/blogs')
+      .set('Authorization', `bearer ${token}`)
       .send(newBlog)
       .expect(200)
       .expect('Content-Type', /application\/json/)
@@ -98,13 +133,24 @@ describe('POST', () => {
   })
 
   test('Return 400 Bad request, if "title" and "url" are null', async () => {
+    const user = await User.findOne({})
+
+    const userForToken = {
+      username: user.username,
+      id: user._id,
+    }
+
+    const token = jwt.sign(userForToken, process.env.SECRET)
+
     const newBlog = {
       author: 'New Author',
       likes: 10,
+      user: user._id,
     }
 
     await api
       .post('/api/blogs')
+      .set('Authorization', `bearer ${token}`)
       .send(newBlog)
       .expect(400)
 
@@ -112,24 +158,28 @@ describe('POST', () => {
 
     expect(response.body).toHaveLength(initialBlogs.length)
   })
-})
 
-describe('DELETE', () => {
-  test('Deletion of a blog works correctly', async () => {
-    const blogsAtStart = await api.get('/api/blogs')
-    const blogToDelete = blogsAtStart.body[0]
+  test('Fail with proper statuscode when POST without token', async () => {
+    const user = await User.findOne({})
+
+    const blogToAdd = {
+      title: 'First blog',
+      author: 'Pasi Viheraho',
+      url: 'https://www.lahdenkeskusvankila.fi',
+      likes: 100,
+      user: user._id,
+    }
 
     await api
-      .delete(`/api/blogs/${blogToDelete.id}`)
-      .expect(204)
-
-    const blogsAtEnd = await api.get('/api/blogs')
-    expect(blogsAtEnd.body).toHaveLength(initialBlogs.length - 1)
+      .post('/api/blogs', blogToAdd)
+      .expect(401)
   })
 })
 
-describe('PUT', () => {
+describe('UPDATE', () => {
   test('Update of blog works correctly', async () => {
+    const user = await User.findOne({})
+
     const blogs = await api.get('/api/blogs')
     const blogToUpdate = blogs.body[0]
 
@@ -138,6 +188,7 @@ describe('PUT', () => {
       author: blogToUpdate.author,
       url: blogToUpdate.url,
       likes: 100,
+      user: user._id,
     }
 
     await api
@@ -146,6 +197,30 @@ describe('PUT', () => {
 
     const updatedBlogs = await Blog.find({ title: newBlog.title })
     expect(updatedBlogs[0].likes).toBe(newBlog.likes)
+  })
+})
+
+describe('DELETE', () => {
+  test('Deletion of a blog works correctly', async () => {
+    const user = await User.findOne({})
+
+    const userForToken = {
+      username: user.username,
+      id: user._id,
+    }
+
+    const token = jwt.sign(userForToken, process.env.SECRET)
+
+    const blogsAtStart = await api.get('/api/blogs')
+    const blogToDelete = blogsAtStart.body[0]
+
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .set('Authorization', `bearer ${token}`)
+      .expect(204)
+
+    const blogsAtEnd = await api.get('/api/blogs')
+    expect(blogsAtEnd.body).toHaveLength(initialBlogs.length - 1)
   })
 })
 
