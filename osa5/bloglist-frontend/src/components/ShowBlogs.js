@@ -8,8 +8,6 @@ const ShowBlogs = ({ blogs, user }) => {
     .map(blog => <Blog key={blog.id} blog={blog} />)
   return (
     <div>
-      <h2>blogs</h2>
-      <p>{ user.name } logged in</p>
       { blogsMapped }
     </div>
   );

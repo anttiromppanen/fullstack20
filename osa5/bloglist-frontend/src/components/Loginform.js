@@ -6,21 +6,21 @@ const Loginform = ({ handleLogin, username, setUsername, password, setPassword }
       <h3>log in to application</h3>
       <form onSubmit={ handleLogin }>
       <div>
-        username
+        username  
         <input
           type="text"
           value={ username }
           name="Username"
-          onChange={({ target }) => setUsername(target.value)}
+          onChange={ ({ target }) => setUsername(target.value) }
         />
       </div>
       <div>
-        password
+        password 
         <input
           type="password"
           value={ password }
           name="Password"
-          onChange={({ target }) => setPassword(target.value)}
+          onChange={ ({ target }) => setPassword(target.value) }
         />
       </div>
       <button type="submit">login</button>
