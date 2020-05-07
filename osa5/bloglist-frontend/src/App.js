@@ -8,6 +8,7 @@ import Loginform from './components/Loginform'
 import ShowBlogs from './components/ShowBlogs'
 import NewBlog from './components/NewBlog'
 import ShowUser from './components/ShowUser'
+import Message from './components/Message'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -18,6 +19,8 @@ const App = () => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
+
+  const [message, setMessage] = useState(null)
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -47,7 +50,7 @@ const App = () => {
       setUsername('')
       setPassword('')
     } catch (error) {
-      console.log('wrong credentials')
+      setMessage('wrong username or password')
     }
   }
 
@@ -63,15 +66,26 @@ const App = () => {
 
     blogService.setToken(user.token)
 
-    const response = await blogService
-      .create(blogToAdd)
+    try {
+      const response = await blogService
+       .create(blogToAdd)
 
-    console.log(response)
-    setBlogs(blogs.concat(response))
+      console.log(response)
+      setBlogs(blogs.concat(response))
+      setTitle('')
+      setAuthor('')
+      setUrl('')
+
+      setMessage(`a new blog ${title} by ${author} added`)
+    } catch (error) {
+      setMessage('adding of new blog failed')
+    }
+    console.log(blogs)
   }
 
   return (
     <div>
+      <Message message={ message } setMessage={ setMessage } />
       {user === null
       ? <Loginform
           handleLogin={ handleLogin }
