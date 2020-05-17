@@ -26,7 +26,7 @@ const App = () => {
     blogService.getAll().then(blogs =>
       setBlogs( blogs )
     )  
-  }, [])
+  }, [blogs.length])
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedUser')
@@ -70,7 +70,6 @@ const App = () => {
       const response = await blogService
        .create(blogToAdd)
 
-      console.log(response)
       setBlogs(blogs.concat(response))
       setTitle('')
       setAuthor('')
@@ -80,7 +79,6 @@ const App = () => {
     } catch (error) {
       setMessage('adding of new blog failed')
     }
-    console.log(blogs)
   }
 
   return (
